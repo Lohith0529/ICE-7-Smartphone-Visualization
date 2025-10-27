@@ -1,1 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>ICE-7 Smartphone Visualization — Pie</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { --bg:#0f172a; --text:#e5e7eb; --muted:#94a3b8; --btn:#22d3ee; --btnText:#0b1022; }
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    .container{max-width:1100px;margin:24px auto;padding:16px}
+    h1{margin:6px 0 10px 0}
+    .nav{display:flex;gap:12px;justify-content:center;margin:8px 0 20px}
+    .nav a{background:var(--btn);color:var(--btnText);text-decoration:none;padding:8px 12px;border-radius:10px;font-weight:600}
+    svg{width:100%;height:520px}
+    text{font-size:14px;font-weight:600;fill:#ffffff;text-anchor:middle}
+    .caption{color:var(--muted);margin-top:12px;line-height:1.4}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ICE-7 Smartphone Visualization</h1>
+    <div class="nav">
+      <a href="index.html">Scatter Plot</a>
+      <a href="pie-chart.html">Pie Chart</a>
+      <a href="line-chart.html">Line Chart</a>
+      <a href="area-chart.html">Area Chart</a>
+    </div>
+
+    <h2 style="margin:8px 0 4px">Q2 — Pie Chart (Dec 2024)</h2>
+    <div id="chart"></div>
+    <p class="caption">
+      This pie chart summarizes each brand’s share of December 2024 units sold. Samsung and Xiaomi occupy the
+      largest portions, indicating strong volume positions. Apple contributes a smaller share at a higher price
+      band, while OnePlus and Google Pixel account for smaller segments.
+    </p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded",()=>{
+    const data=[
+      {brand:"Apple",value:66.5},
+      {brand:"Samsung",value:83.3},
+      {brand:"Xiaomi",value:77.1},
+      {brand:"OnePlus",value:39.6},
+      {brand:"Google Pixel",value:25.4}
+    ];
+
+    const width=720, height=520, radius=Math.min(width,height)/2-10;
+    const svg=d3.select("#chart").append("svg").attr("viewBox",`0 0 ${width} ${height}`);
+    const g=svg.append("g").attr("transform",`translate(${width/2},${height/2})`);
+    const color=d3.scaleOrdinal(d3.schemeTableau10);
+    const pie=d3.pie().sort(null).value(d=>d.value);
+    const arc=d3.arc().innerRadius(0).outerRadius(radius);
+
+    g.selectAll("path").data(pie(data)).join("path")
+      .attr("d",arc).attr("fill",d=>color(d.data.brand));
+
+    // labels inside slices
+    g.selectAll("text").data(pie(data)).join("text")
+      .attr("transform",d=>`translate(${arc.centroid(d)})`)
+      .text(d=>`${d.data.brand} (${d.data.value}k)`);
+  });
+  </script>
+</body>
+</html>
 <!-- Inserted Final Pie Chart Here -->
