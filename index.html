@@ -1,10 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="utf-8"/><title>ICE-7 Smartphone Visualization — Scatter</title>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<style>
-  body{background:#0f172a;color:#e5e7eb;font-family:sans-serif;margin:0;padding:20px;}
-</style>
+<head>
+  <meta charset="utf-8" />
+  <title>ICE-7 Smartphone Visualization — Scatter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { --bg:#0f172a; --text:#e5e7eb; --muted:#94a3b8; --btn:#22d3ee; --btnText:#0b1022; }
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    .container{max-width:1100px;margin:24px auto;padding:16px}
+    h1{margin:6px 0 10px 0}
+    .nav{display:flex;gap:12px;justify-content:center;margin:8px 0 20px}
+    .nav a{background:var(--btn);color:var(--btnText);text-decoration:none;padding:8px 12px;border-radius:10px;font-weight:600}
+    svg{width:100%;height:520px}
+    .axis text{fill:var(--text);font-size:12px}
+    .axis path,.axis line{stroke:rgba(229,231,235,.3)}
+    .label{fill:var(--text);font-size:13px;font-weight:600}
+    .pt-label{font-size:12px}
+    .caption{color:var(--muted);margin-top:12px;line-height:1.4}
+  </style>
 </head>
-<body><h1>ICE-7 Smartphone Visualization</h1><p>Scatter Page Working</p></body>
+<body>
+  <div class="container">
+    <h1>ICE-7 Smartphone Visualization</h1>
+    <div class="nav">
+      <a href="index.html">Scatter Plot</a>
+      <a href="pie-chart.html">Pie Chart</a>
+      <a href="line-chart.html">Line Chart</a>
+      <a href="area-chart.html">Area Chart</a>
+    </div>
+
+    <h2 style="margin:8px 0 4px">Q1 — Reusable Scatter Plot</h2>
+    <div id="chart"></div>
+    <p class="caption">
+      This scatter plot visualizes average smartphone price (USD) versus units sold (in thousands) for five brands
+      in December 2024. Apple occupies the premium price range with moderate volume, while Samsung and Xiaomi
+      demonstrate higher volume at lower to mid-range prices. OnePlus and Google Pixel sit between these extremes.
+    </p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const data = [
+      {brand:"Apple",        units_sold:66.5, avg_price:1132},
+      {brand:"Samsung",      units_sold:83.3, avg_price: 926},
+      {brand:"Xiaomi",       units_sold:77.1, avg_price: 514},
+      {brand:"OnePlus",      units_sold:39.6, avg_price: 699},
+      {brand:"Google Pixel", units_sold:25.4, avg_price: 949}
+    ];
+
+    const margin={top:40,right:160,bottom:56,left:64}, width=980, height=520;
+    const innerW=width-margin.left-margin.right, innerH=height-margin.top-margin.bottom;
+
+    const svg=d3.select("#chart").append("svg").attr("viewBox",`0 0 ${width} ${height}`);
+    const g=svg.append("g").attr("transform",`translate(${margin.left},${margin.top})`);
+
+    const x=d3.scaleLinear().domain(d3.extent(data,d=>d.avg_price)).nice().range([0,innerW]);
+    const y=d3.scaleLinear().domain(d3.extent(data,d=>d.units_sold)).nice().range([innerH,0]);
+    const color=d3.scaleOrdinal(d3.schemeTableau10).domain(data.map(d=>d.brand));
+
+    g.append("g").attr("class","axis").attr("transform",`translate(0,${innerH})`).call(d3.axisBottom(x));
+    g.append("g").attr("class","axis").call(d3.axisLeft(y));
+
+    g.append("text").attr("class","label").attr("x",innerW/2).attr("y",innerH+40).attr("text-anchor","middle")
+      .text("Average Price (USD)");
+    g.append("text").attr("class","label").attr("transform","rotate(-90)").attr("x",-innerH/2).attr("y",-44)
+      .attr("text-anchor","middle").text("Units Sold (thousands)");
+
+    g.selectAll("circle").data(data).enter().append("circle")
+      .attr("cx",d=>x(d.avg_price)).attr("cy",d=>y(d.units_sold)).attr("r",7)
+      .attr("fill",d=>color(d.brand));
+
+    g.selectAll(".pt-label").data(data).enter().append("text")
+      .attr("class","pt-label").attr("x",d=>x(d.avg_price)+10).attr("y",d=>y(d.units_sold)+4)
+      .attr("fill",d=>color(d.brand)).text(d=>d.brand);
+  });
+  </script>
+</body>
 </html>
