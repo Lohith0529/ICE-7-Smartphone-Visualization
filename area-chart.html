@@ -1,1 +1,82 @@
-<!-- Inserted Final Area Chart Here -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>ICE-7 Smartphone Visualization — Area</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { --bg:#0f172a; --text:#e5e7eb; --muted:#94a3b8; --btn:#22d3ee; --btnText:#0b1022; }
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    .container{max-width:1100px;margin:24px auto;padding:16px}
+    h1{margin:6px 0 10px 0}
+    .nav{display:flex;gap:12px;justify-content:center;margin:8px 0 20px}
+    .nav a{background:var(--btn);color:var(--btnText);text-decoration:none;padding:8px 12px;border-radius:10px;font-weight:600}
+    svg{width:100%;height:520px}
+    .axis text{fill:var(--text);font-size:12px}
+    .axis path,.axis line{stroke:rgba(229,231,235,.3)}
+    .label{fill:var(--text);font-size:13px;font-weight:600}
+    .caption{color:var(--muted);margin-top:12px;line-height:1.4}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ICE-7 Smartphone Visualization</h1>
+    <div class="nav">
+      <a href="index.html">Scatter Plot</a>
+      <a href="pie-chart.html">Pie Chart</a>
+      <a href="line-chart.html">Line Chart</a>
+      <a href="area-chart.html">Area Chart</a>
+    </div>
+
+    <h2 style="margin:8px 0 4px">Q3 — Area Chart</h2>
+    <div id="chart"></div>
+    <p class="caption">
+      The area chart emphasizes overall magnitude by filling the region beneath the line. Peaks in Q4 become visually
+      prominent, while precise inflection points are slightly de-emphasized relative to a standard line chart.
+    </p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded",()=>{
+    const data=[
+      {date:new Date("2024-01-01"), value:200},
+      {date:new Date("2024-02-01"), value:210},
+      {date:new Date("2024-03-01"), value:230},
+      {date:new Date("2024-04-01"), value:240},
+      {date:new Date("2024-05-01"), value:250},
+      {date:new Date("2024-06-01"), value:245},
+      {date:new Date("2024-07-01"), value:235},
+      {date:new Date("2024-08-01"), value:238},
+      {date:new Date("2024-09-01"), value:248},
+      {date:new Date("2024-10-01"), value:265},
+      {date:new Date("2024-11-01"), value:285},
+      {date:new Date("2024-12-01"), value:305}
+    ];
+
+    const margin={top:40,right:20,bottom:56,left:64}, width=980, height=520;
+    const innerW=width-margin.left-margin.right, innerH=height-margin.top-margin.bottom;
+
+    const svg=d3.select("#chart").append("svg").attr("viewBox",`0 0 ${width} ${height}`);
+    const g=svg.append("g").attr("transform",`translate(${margin.left},${margin.top})`);
+
+    const x=d3.scaleUtc().domain(d3.extent(data,d=>d.date)).range([0,innerW]);
+    const y=d3.scaleLinear().domain([0,d3.max(data,d=>d.value)]).nice().range([innerH,0]);
+
+    g.append("g").attr("class","axis").attr("transform",`translate(0,${innerH})`)
+      .call(d3.axisBottom(x).ticks(d3.utcMonth.every(1)).tickFormat(d3.utcFormat("%b")));
+    g.append("g").attr("class","axis").call(d3.axisLeft(y));
+
+    g.append("text").attr("class","label").attr("x",innerW/2).attr("y",innerH+40).attr("text-anchor","middle")
+      .text("Month (2024)");
+    g.append("text").attr("class","label").attr("transform","rotate(-90)").attr("x",-innerH/2).attr("y",-44)
+      .attr("text-anchor","middle").text("Total Units (thousands)");
+
+    const area=d3.area().x(d=>x(d.date)).y0(y(0)).y1(d=>y(d.value));
+
+    g.append("path").datum(data).attr("fill","rgba(34,211,238,0.35)")
+      .attr("stroke","#22d3ee").attr("stroke-width",2).attr("d",area);
+  });
+  </script>
+</body>
+</html>
